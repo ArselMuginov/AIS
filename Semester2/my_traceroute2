@@ -1,0 +1,41 @@
+#!/bin/bash
+if [ -z "$1" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]
+then
+    echo 'Usage: ./my_traceroute <ipv4> <hops>'
+else
+    i=1
+    while [ "$i" -le "$2" ]
+    do
+	cmd=`ping $1 -c 1 -t $i -n`
+	if [ "$?" -eq "2" ]
+	then
+	    echo $cmd
+	    break
+	fi
+
+	cmd=`echo "$cmd" | grep icmp`
+	if [ "${cmd:0:1}" == "6" ]
+	then
+	    ip=`echo "$cmd" | awk -F ' ' '{print $4}' | rev | cut -c 2- | rev`
+	    msecs=`ping $ip -c 3 -n | awk -F ' ' '/icmp/{print $7, $8}' | cut -c 6-`
+	    msecs=`echo $msecs`
+	    echo "$i  $ip $msecs"
+	    printf "%2d  %s  %s"
+	    break
+
+	elif [ -z "$cmd" ]
+	then
+	    echo "$i  * * *"
+	else
+	    ip=`echo "$cmd" | awk -F ' ' '{print $2}'`
+	    msecs=`ping $ip -c 3 -n | awk -F ' ' '/icmp/{print $7, $8}' | cut -c 6-`
+	    if [ -z "$msecs" ]
+	    then
+		msecs='100% packet loss'
+	    fi
+	    msecs=`echo $msecs`
+	    echo "$i  $ip $msecs"
+	fi
+	i=$(($i+1))
+    done
+fi

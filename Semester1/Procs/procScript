@@ -1,0 +1,8 @@
+#!/bin/bash
+ps -eo ni,pid,cmd | grep -E '^-' > ~/Документы/Scripts/Procs/procPrev
+while true
+do
+	ps -eo ni,pid,cmd | grep -E '^-' > ~/Документы/Scripts/Procs/procCurr
+	diff ~/Документы/Scripts/Procs/procCurr ~/Документы/Scripts/Procs/procPrev
+	cat ~/Документы/Scripts/Procs/procCurr > ~/Документы/Scripts/Procs/procPrev
+done

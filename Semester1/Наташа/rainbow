@@ -1,0 +1,18 @@
+#!/bin/bash
+
+func()
+{
+	let "color1=0"
+	let "color2=0"
+	while true
+	do
+		read string
+		color1=$(($RANDOM%9))
+		color2=$(($RANDOM%9))
+		echo -e '\x1b['"3$color1;4${color2}m$string"'\x1b[0m'
+	done
+}
+
+func
+
+

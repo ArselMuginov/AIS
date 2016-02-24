@@ -1,0 +1,13 @@
+#!/bin/bash
+
+file=$(ps -eo ppid,pid,cmd | tail -n+2 | sort -nk1,2 -nk2,2)
+
+childs()
+{
+	line=$(echo "$file" | head -n1)
+	ppid=$(echo "$file" | head -n1 | awk '{ print $1 }')
+	if [ "$ppid" == ]
+	echo "$file" | head -n1
+}
+
+childs

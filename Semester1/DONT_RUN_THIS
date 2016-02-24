@@ -1,0 +1,10 @@
+#!/bin/bash
+trap2()
+{
+	echo "Signal SIGINT catched"
+}
+trap trap2 2
+while true
+do
+	echo abc
+done

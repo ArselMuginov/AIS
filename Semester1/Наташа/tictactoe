@@ -1,0 +1,195 @@
+#! /bin/bash
+declare -a field 
+field=([0]="_" [1]="_" [2]="_" [3]="_" [4]="_" [5]="_" [6]="_" [7]="_" [8]="_")
+position=0
+win=0
+key=0
+
+player="X"
+count=9
+
+PrintField() {
+	local i=0;
+	
+	for i in 0 1 2 3 4 5 6 7 8
+	do
+		if [ "$1" != "$i" ]
+		then
+			echo -n ${field[$i]}
+		else
+			echo -ne "\e[41m"
+			echo -n ${field[$i]}
+			echo -ne "\e[0m" 
+		fi
+		
+		if [ $i -eq 2 ]
+		then
+			echo
+		fi
+		if [ $i -eq 5 ]
+		then
+			echo
+		fi
+		if [ $i -eq 8 ]
+		then
+			echo
+		fi
+		
+	done
+}
+CheckWinner() {
+	if [ $1 == $2 ]
+	then
+		if [ $2 == $3 ]
+		then
+			if [ $3 == "X" ]
+			then
+				win=1
+				echo player X win!
+				exit 0
+			else
+				if [ $3 == "O" ]
+				then
+					win=1
+					echo player O win!
+					exit 0
+				fi
+			fi
+		fi
+	else
+		return 0
+	fi
+}
+
+CheckTie()
+{
+if [ "$count" == 0 ]
+	then 
+		win=1
+		echo It is tie!
+		exit 0
+	fi
+}
+Check() {
+	CheckWinner ${field[0]} ${field[1]} ${field[2]}
+	CheckWinner ${field[3]} ${field[4]} ${field[5]}
+	CheckWinner ${field[6]} ${field[7]} ${field[8]}
+	CheckWinner ${field[0]} ${field[3]} ${field[6]}
+	CheckWinner ${field[1]} ${field[4]} ${field[7]}
+	CheckWinner ${field[2]} ${field[5]} ${field[8]}
+	CheckWinner ${field[0]} ${field[4]} ${field[8]}
+	CheckWinner ${field[2]} ${field[4]} ${field[6]}
+	CheckTie
+}
+
+KeyPress() {
+		read -s -n1 press
+		case "$press" in
+			$"A" )return 1;;
+			$"B" )return 2;;
+			$"C" )return 3;;
+			$"D" )return 4;;
+			$""  )return 5 ;;
+			* 	 )return 0;;
+		esac
+}
+ChangePosition1()
+{
+			position=$[$position-$1]
+			if [ "$position" -lt 0 ]
+			then
+				position=$[$position+$1]
+			fi 	
+}
+ChangePosition2()
+{
+position=$[$position+$1]
+			if [ "$position" -gt 8 ]
+			then
+				position=$[$position-$1]
+			fi 	
+}
+move() {
+	while true
+	do
+		clear
+		echo choose of player" "$player
+		PrintField $position
+		#echo $position
+		while true
+		do
+		KeyPress
+		key=$?
+		if [ "$key" -eq 0 ]
+		then 
+		clear
+		else
+		break
+		fi
+		done
+		if [ "$key" -eq 1 ]
+		then
+		ChangePosition1 3
+		fi
+		
+		if [ "$key" -eq 4 ]
+		then
+			ChangePosition1 1
+		fi
+		
+		if [ "$key" -eq 2 ]
+		then
+			ChangePosition2 3
+		fi
+		
+		if [ "$key" -eq 3 ]
+		then
+			ChangePosition2 1
+		fi
+		
+		if [ "$key" -eq 5 ]
+		then
+			break
+		fi
+		
+	done
+}
+ChoosePlayer()
+{
+if [ $player == "X" ]
+	then 
+		player="O"
+	else
+		player="X"
+	fi
+}
+clear
+while [ $win -eq 0 ]
+do 	
+	position=0
+	while true
+	do	
+		move
+		if [ ${field[$position]} == "_" ]
+		then
+			field[position]=$player
+			count=$[$count-1]
+			break
+		fi
+	done
+	Check
+	ChoosePlayer
+done
+clear
+PrintField
+#if [ $win -eq 1 ]
+#then 
+#	echo X wins
+#else 
+#	if [ $win -eq 2 ]
+#	then
+	#	echo O wins
+	#else
+	#	echo Oooops, Draw
+	#fi
+#fi

@@ -1,0 +1,103 @@
+#!/bin/bash
+posX=0
+posY=0
+char=( [0]='X' [1]='0' )
+i=0
+chars=( [00]=' ' [01]=' ' [02]=' ' [10]=' ' [11]=' ' [12]=' ' [20]=' ' [21]=' ' [22]=' ' )
+win_sum=0
+draw_sum=0
+result=0
+
+check_three()
+{
+	if [ "$1" == "" ] || [ "$2" == "" ] || [ "$3" == "" ]
+	then
+		return 1
+	fi
+	draw_sum=$(($draw_sum+1))
+	if [ "$1" == "$2" ] && [ "$1" == "$3" ]
+	then
+		win_sum=$(($win_sum+1))
+	fi
+}
+
+check_all()
+{
+	check_three ${chars[00]} ${chars[01]} ${chars[02]}
+	check_three ${chars[10]} ${chars[11]} ${chars[12]}
+	check_three ${chars[20]} ${chars[21]} ${chars[22]}
+	check_three ${chars[00]} ${chars[10]} ${chars[20]}
+	check_three ${chars[01]} ${chars[11]} ${chars[21]}
+	check_three ${chars[02]} ${chars[12]} ${chars[22]}
+	check_three ${chars[00]} ${chars[11]} ${chars[22]}
+	check_three ${chars[02]} ${chars[11]} ${chars[20]}
+	if [ "$win_sum" -ne 0 ]
+	then
+		result=1
+	else
+		if [ "$draw_sum" -eq 8 ]
+		then
+			result=2
+		else
+			result=0
+		fi
+	fi
+}
+
+while IFS= read -s -n1 key1
+do
+	colors=( [00]='47' [01]='40' [02]='47' [10]='40' [11]='47' [12]='40' [20]='47' [21]='40' [22]='47' )
+	clear
+	
+	if [ "$key1" == " " ]
+	then
+		if [ "${chars[$posY$posX]}" == " " ]
+		then
+			chars[$posY$posX]=${char[$i]}
+			i=$(((i+1+2)%2))
+		fi
+	else
+		read -s -n2 key2
+		key=$key1$key2
+		case "$key" in
+			$'\E'"[A" )
+			posY=$((($posY-1+3)%3))
+			;;
+			$'\E'"[B" )
+			posY=$((($posY+1+3)%3))
+			;;
+			$'\E'"[C" )
+			posX=$((($posX+1+3)%3))
+			;;
+			$'\E'"[D" )
+			posX=$((($posX-1+3)%3))
+			;;
+			* )
+			continue
+			;;
+		esac
+	fi
+	
+	colors[$posY$posX]=41
+	echo -e '\x1b['"30;${colors[00]}m${chars[00]}"'\x1b['"37;${colors[01]}m${chars[01]}"'\x1b['"30;${colors[02]}m${chars[02]}"'\x1b[0m'
+	echo -e '\x1b['"37;${colors[10]}m${chars[10]}"'\x1b['"30;${colors[11]}m${chars[11]}"'\x1b['"37;${colors[12]}m${chars[12]}"'\x1b[0m'
+	echo -e '\x1b['"30;${colors[20]}m${chars[20]}"'\x1b['"37;${colors[21]}m${chars[21]}"'\x1b['"30;${colors[22]}m${chars[22]}"'\x1b[0m'
+	
+	check_all
+	if [ "$result" -eq 1 ]
+	then
+		i=$(((i+1+2)%2))
+		echo
+		echo "${char[$i]} wins!"
+		break
+	fi
+	if [ "$result" -eq 2 ]
+	then
+		echo
+		echo "Draw"
+		break
+	fi
+	win_sum=0
+	draw_sum=0
+done
+exit 0

@@ -1,0 +1,2 @@
+#!/bin/bash
+cat pg100.txt | tr '\r[:punct:][:digit:] ' '\n' | tr '[:upper:]' '[:lower:]' | sort | uniq -c | sort -nr | wc -l

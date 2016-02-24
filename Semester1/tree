@@ -1,0 +1,29 @@
+#!/bin/bash
+
+childs()
+{
+	
+}
+
+file=$(ps -eo ppid,pid,cmd | tail -n+2 | sort -nk1,2 -nk2,2)
+while [ "$file" != "" ]
+do
+	line=$(echo "$file" | head -n1)
+	ppid=$(echo "$line" | awk '{ print $1 }')	
+	if [ "$ppid" == "0" ]
+	then
+		ancestor="0"
+		depth=0
+		echo "$line"
+	else
+		if [ "$ancestor" != "$ppid" ]
+		then
+			ancestor=$ppid
+			depth=$(($depth+1))
+		fi
+		printf '%0.s-' $(seq 1 $depth)
+		line=$(echo "$line" | awk '{ print $3 }')
+	fi
+	echo $line
+	file=$(echo "$file" | tail -n+2)
+done

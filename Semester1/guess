@@ -1,0 +1,20 @@
+#!/bin/bash
+n=$RANDOM
+i=1
+while read m
+do
+	if [ "$n" -ge "$m" ]
+	then
+		if [ "$n" -gt "$m" ]
+		then
+			echo My number is greater
+		else
+			echo You are right
+			break
+		fi
+	else
+		echo My number is less
+	fi
+	i=$(($i+1))
+done
+echo Guessed in $i tries
